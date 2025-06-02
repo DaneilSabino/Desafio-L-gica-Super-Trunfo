@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Super Trunfo Valorant</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0f1923;
+      color: #f0f0f0;
+      margin: 0; padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #00ffff;
+      margin-bottom: 0;
+    }
+    h2 {
+      margin-top: 5px;
+      color: #00cccc;
+    }
+    .game-area {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+    .card {
+      background-color: #1c2732;
+      border: 3px solid #00ffff;
+      border-radius: 12px;
+      width: 220px;
+      padding: 15px;
+      box-shadow: 0 0 20px #00ffffaa;
+      color: #00ffff;
+      cursor: default;
+      transition: transform 0.3s ease;
+      user-select: none;
+    }
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px #00ffffdd;
+    }
+    .card img {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border: 2px solid #00cccc;
+    }
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 1.5em;
+    }
+    .atributos {
+      text-align: left;
+      margin-top: 10px;
+    }
+    .atributo {
+      margin: 6px 0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.1em;
+    }
+    .atributo label {
+      cursor: pointer;
+      flex-grow: 1;
+    }
+    input[type="radio"] {
+      margin-right: 8px;
+      cursor: pointer;
+    }
+    button {
+      background-color: #00ffff;
+      border: none;
+      border-radius: 8px;
+      color: #0f1923;
+      font-size: 18px;
+      padding: 12px 25px;
+      margin-top: 25px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover:not(:disabled) {
+      background-color: #00cccc;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    #resultado {
+      margin-top: 25px;
+      font-weight: bold;
+      font-size: 20px;
+      min-height: 40px;
+      color: #00ff88;
+    }
+    #placar {
+      margin-top: 15px;
+      font-size: 18px;
+      color: #00cccc;
+    }
+    @media (max-width: 600px) {
+      .game-area {
+        flex-direction: column;
+        align-items: center;
+      }
+      .card {
+        width: 90%;
+      }
+    }
+  </style>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Super Trunfo Valorant</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <h1>Super Trunfo Valorant</h1>
+  <h2>Escolha um atributo para competir contra o computador</h2>
+
+  <div class="game-area">
+    <div class="card" id="player-card">
+      <h3>Seu Agente</h3>
+      <img src="" alt="Imagem do agente" id="player-img" />
+      <div class="atributos" id="player-atributos">
+        <!-- Atributos com radio buttons vão aqui -->
+      </div>
+    </div>
+
+    <div class="card" id="computer-card">
+      <h3>Agente do Computador</h3>
+      <img src="" alt="Imagem do agente" id="computer-img" />
+      <div class="atributos" id="computer-atributos">
+        <!-- Atributos só pra mostrar, sem radio -->
+      </div>
+    </div>
+  </div>
+
+  <button id="btn-jogar" disabled>Jogar!</button>
+
+  <div id="resultado"></div>
+  <div id="placar">Você: 0 | Computador: 0</div>
+
+  <script>
+    const agentes = [
+      {
+        nome: "Jett",
+        img: "https://static.wikia.nocookie.net/valorant/images/6/6f/Jett_icon.png",
+        atributos: {
+          Habilidade: 7,
+          Velocidade: 9,
+          Controle: 6,
+          Popularidade: 8
+        }
+      },
+      {
+        nome: "Omen",
+        img: "https://static.wikia.nocookie.net/valorant/images/d/d9/Omen_icon.png",
+        atributos: {
+          Habilidade: 7,
+          Velocidade: 6,
+          Controle: 8,
+          Popularidade: 7
+        }
+      },
+      {
+        nome: "Sage",
+        img: "https://static.wikia.nocookie.net/valorant/images/7/7d/Sage_icon.png",
+        atributos: {
+          Habilidade: 6,
+          Velocidade: 5,
+          Controle: 5,
+          Popularidade: 9
+        }
+      },
+      {
+        nome: "Phoenix",
+        img: "https://static.wikia.nocookie.net/valorant/images/4/4b/Phoenix_icon.png",
+        atributos: {
+          Habilidade: 9,
+          Velocidade: 4,
+          Controle: 7,
+          Popularidade: 6
+        }
+      }
+    ];
+
+    let pontosJogador = 0;
+    let pontosComputador = 0;
+    let cartaJogador;
+    let cartaComputador;
+
+    const playerCard = document.getElementById("player-card");
+    const computerCard = document.getElementById("computer-card");
+    const playerImg = document.getElementById("player-img");
+    const computerImg = document.getElementById("computer-img");
+    const playerAtributosDiv = document.getElementById("player-atributos");
+    const computerAtributosDiv = document.getElementById("computer-atributos");
+    const btnJogar = document.getElementById("btn-jogar");
+    const resultadoDiv = document.getElementById("resultado");
+    const placarDiv = document.getElementById("placar");
+
+    function sortearCartas() {
+      const indiceJogador = Math.floor(Math.random() * agentes.length);
+      let indiceComputador;
+      do {
+        indiceComputador = Math.floor(Math.random() * agentes.length);
+      } while (indiceComputador === indiceJogador);
+
+      cartaJogador = agentes[indiceJogador];
+      cartaComputador = agentes[indiceComputador];
+      exibirCartaJogador();
+      exibirCartaComputador(false);
+      resultadoDiv.textContent = "";
+      btnJogar.disabled = true;
+    }
+
+    function exibirCartaJogador() {
+      playerImg.src = cartaJogador.img;
+      playerImg.alt = `Imagem do agente ${cartaJogador.nome}`;
+      playerCard.querySelector("h3").textContent = `Seu Agente: ${cartaJogador.nome}`;
+
+      playerAtributosDiv.innerHTML = "";
+
+      for (let atributo in cartaJogador.atributos) {
+        const valor = cartaJogador.atributos[atributo];
+        const atributoHTML = `
+          <div class="atributo">
+            <label>
+              <input type="radio" name="atributo" value="${atributo}" />
+              ${atributo}: ${valor}
+            </label>
+          </div>
+        `;
+        playerAtributosDiv.insertAdjacentHTML("beforeend", atributoHTML);
+      }
+
+      const radios = playerAtributosDiv.querySelectorAll("input[name='atributo']");
+      radios.forEach(radio => {
+        radio.addEventListener("change", () => {
+          btnJogar.disabled = false;
+          resultadoDiv.textContent = "";
+        });
+      });
+    }
+
+    function exibirCartaComputador(mostrar = true) {
+      computerImg.src = cartaComputador.img;
+      computerImg.alt = `Imagem do agente ${cartaComputador.nome}`;
+      computerCard.querySelector("h3").textContent = mostrar ? `Agente do Computador: ${cartaComputador.nome}` : "Agente do Computador";
+
+      computerAtributosDiv.innerHTML = "";
+
+      for (let atributo in cartaComputador.atributos) {
+        const valor = cartaComputador.atributos[atributo];
+        const atributoHTML = `
+          <div class="atributo">
+            ${atributo}: ${mostrar ? valor : "?"}
+          </div>
+        `;
+        computerAtributosDiv.insertAdjacentHTML("beforeend", atributoHTML);
+      }
+    }
+
+    btnJogar.addEventListener("click", () => {
+      const atributoSelecionado = document.querySelector('input[name="atributo"]:checked');
+      if (!atributoSelecionado) {
+        resultadoDiv.textContent = "Selecione um atributo para jogar!";
+        return;
+      }
+
+      const atributo = atributoSelecionado.value;
+      const valorJogador = cartaJogador.atributos[atributo];
+      const valorComputador = cartaComputador.atributos[atributo];
+
+      exibirCartaComputador(true);
+
+      if (valorJogador > valorComputador) {
+        resultadoDiv.textContent = `🎉 Você venceu! Seu ${atributo} (${valorJogador}) é maior que o do computador (${valorComputador}).`;
+        pontosJogador++;
+      } else if (valorJogador < valorComputador) {
+        resultadoDiv.textContent = `😞 Você perdeu! Seu ${atributo} (${valorJogador}) é menor que o do computador (${valorComputador}).`;
+        pontosComputador++;
+      } else {
+        resultadoDiv.textContent = `🤝 Empate! Ambos têm ${valorJogador}.`;
+      }
+
+      atualizarPlacar();
+      btnJogar.disabled = true;
+
+      setTimeout(() => {
+        sortearCartas();
+      }, 3000);
+    });
+
+    function atualizarPlacar() {
+      placarDiv.textContent = `Você: ${pontosJogador} | Computador: ${pontosComputador}`;
+    }
+
+    // Inicia o jogo sorteando as cartas
+    sortearCartas();
+  </script>
+</body>
+</html>      
